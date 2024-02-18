@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/latest/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(user, "User", "A user of the task tracker system.")
+Container(taskTrackerApi, "Task Tracker API", "REST API", "Provides endpoints for user interaction with tasks, comments, and statistics.")
+ContainerDb(userDatabase, "User Database", "Database", "Stores user credentials and task assignments.")
+Container(statisticsService, "Statistics Service", "gRPC", "Processes and stores task statistics.")
+ContainerDb(statisticsDatabase, "Statistics Database", "ClickHouse", "Stores statistics data.")
+Container(commentService, "Comment Service", "gRPC", "Manages task comments.")
+ContainerDb(commentDatabase, "Comment Database", "Database", "Stores comments and their hierarchies.")
+Container(broker, "Message Broker", "Kafka/RabbitMQ", "Facilitates communication of events.")
+
+Rel(user, taskTrackerApi, "Uses", "HTTPS")
+Rel(taskTrackerApi, userDatabase, "Reads/Writes")
+Rel(taskTrackerApi, statisticsService, "Invokes", "gRPC")
+Rel(taskTrackerApi, commentService, "Invokes", "gRPC")
+Rel(taskTrackerApi, broker, "Publishes", "AMQP")
+Rel(statisticsService, statisticsDatabase, "Reads/Writes")
+Rel(commentService, commentDatabase, "Reads/Writes")
+@enduml
