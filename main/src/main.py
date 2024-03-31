@@ -7,6 +7,12 @@ from functools import wraps
 import os
 from flask_migrate import Migrate
 
+from .test import aboba
+
+import grpc
+from .task_service_pb2_grpc import *
+from .task_service_pb2 import *
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -24,6 +30,10 @@ class User(db.Model):
     birthdate = db.Column(db.Date)
     email = db.Column(db.String(100))
     phone_number = db.Column(db.String(20))
+
+
+GRPC_CHANNEL = grpc.insecure_channel(os.environ.get("GRPC_SERVER_URI"))
+GRPC_TASK_SERVICE_STUB = TaskServiceStub(GRPC_CHANNEL)
 
 def token_required(f):
     @wraps(f)
@@ -45,6 +55,83 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
 
     return decorated
+
+
+@app.route('/api/tasks/create', methods=['POST'])
+@token_required
+def create_grpc_task(current_user):
+    data = request.get_json()
+    response = GRPC_TASK_SERVICE_STUB.CreateTask(
+        CreateTaskRequest(
+            title=data['title'], 
+            description=data['description']
+        )
+    )
+    return jsonify({
+        'id': response.id,
+        'title': response.title,
+        'description': response.description
+    }), 201
+
+
+@app.route('/api/tasks/update/<int:task_id>', methods=['PUT'])
+@token_required
+def update_grpc_task(current_user, task_id):
+    data = request.get_json()
+    response = GRPC_TASK_SERVICE_STUB.UpdateTask(
+        UpdateTaskRequest(
+            id=task_id,
+            title=data['title'], 
+            description=data['description'],
+            is_completed=data['is_completed']
+        )
+    )
+    return jsonify({
+        'id': response.id,
+        'title': response.title,
+        'description': response.description,
+        'is_completed': response.is_completed
+    }), 200
+
+
+@app.route('/api/tasks/delete/<int:task_id>', methods=['DELETE'])
+@token_required
+def delete_grpc_task(current_user, task_id):
+    response = GRPC_TASK_SERVICE_STUB.DeleteTask(
+        DeleteTaskRequest(id=task_id)
+    )
+    return jsonify({'success': response.success}), 200
+
+
+@app.route('/api/tasks/<int:task_id>', methods=['GET'])
+@token_required
+def get_grpc_task(current_user, task_id):
+    response = GRPC_TASK_SERVICE_STUB.GetTask(
+        GetTaskRequest(id=task_id)
+    )
+    return jsonify({
+        'id': response.id,
+        'title': response.title,
+        'description': response.description,
+        'is_completed': response.is_completed
+    }), 200
+
+
+@app.route('/api/tasks/', methods=['GET'])
+@token_required
+def list_grpc_tasks(current_user):
+    page = request.args.get('page', 0, type=int)
+    page_size = request.args.get('page_size', 10, type=int)
+    response = GRPC_TASK_SERVICE_STUB.ListTasks(
+        ListTasksRequest(page=page, page_size=page_size)
+    )
+    tasks = [{
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'is_completed': task.is_completed
+    } for task in response.tasks]
+    return jsonify(tasks), 200
 
 @app.route('/api/users/register', methods=['POST'])
 def register():

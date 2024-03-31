@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package task_service;
+
+// The task service definition.
+service TaskService {
+  // Creates a new task.
+  rpc CreateTask(CreateTaskRequest) returns (TaskResponse);
+
+  // Updates an existing task.
+  rpc UpdateTask(UpdateTaskRequest) returns (TaskResponse);
+
+  // Deletes a task.
+  rpc DeleteTask(TaskIdRequest) returns (DeleteTaskResponse);
+
+  // Gets a task by ID.
+  rpc GetTask(TaskIdRequest) returns (TaskResponse);
+
+  // Lists tasks with pagination.
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+}
+
+// The request message containing the task's data for creation.
+message CreateTaskRequest {
+  string title = 1;
+  string description = 2;
+  string deadline = 3;
+}
+
+// The request message containing the task's ID for deletion and retrieval.
+message TaskIdRequest {
+  int32 taskId = 1;
+}
+
+// The request message containing the task's data for update.
+message UpdateTaskRequest {
+  int32 taskId = 1;
+  string title = 2;
+  string description = 3;
+  string deadline = 4;
+  bool isCompleted = 5;
+}
+
+// The response message for task deletion.
+message DeleteTaskResponse {
+  bool success = 1;
+}
+
+// The response message containing the task's data.
+message TaskResponse {
+  int32 taskId = 1;
+  string title = 2;
+  string description = 3;
+  string created_at = 4;
+  string deadline = 5;
+  bool isCompleted = 6;
+}
+
+// The request message for task listing.
+message ListTasksRequest {
+  int32 page = 1;
+  int32 pageSize = 2;
+}
+
+// The response message for task listing.
+message ListTasksResponse {
+  repeated TaskResponse tasks = 1;
+}
