@@ -19,4 +19,4 @@ curl -X POST -H "Content-Type: application/json"      -d '{"username":"myusernam
 
 curl -X PUT      -H "Content-Type: application/json"      -H "Authorization: <token>"      -d '{"name":"New Name", "email":"newemail@example.com"}'      http://localhost:5000/api/users/me
 
-curl -X POST -H "Content-Type: application/json"       -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzExOTMwODA1fQ.3r7BTFHVq1198GUMLl_qzpGxzoS6H0Ft0Kt9ycDkROY"      -d '{"title":"Task Title", "description":"description123"}'      http://localhost:5000/api/tasks/create
+curl -X POST -H "Content-Type: application/json"       -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzExOTMwODA1fQ.3r7BTFHVq1198GUMLl_qzpGxzoS6H0Ft0Kt9ycDkROY"      -d '{"title":"Task Title", "description":"description123", "deadline":"22.09.2022"}'      http://localhost:5000/api/tasks/create

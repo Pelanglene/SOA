@@ -1,5 +1,14 @@
 from concurrent import futures
 import grpc
+from datetime import datetime
+
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+
+# Создание логгера
+logger = logging.getLogger(name)
 
 import protocols.task_service_pb2_grpc as task_service_pb2_grpc
 import protocols.task_service_pb2 as task_service_pb2
@@ -11,6 +20,8 @@ from crud import create_task, update_task, delete_task, get_task_by_id, list_tas
 class TaskService(task_service_pb2_grpc.TaskServiceServicer):
     def CreateTask(self, request, context):
         db_session = get_db_session()
+        logger.info(request.deadline)
+        logger.info(type(request.deadline))
         try:
             task = create_task(
                 db=db_session,
@@ -115,5 +126,4 @@ def serve():
         server.stop(0)
 
 if __name__ == '__main__':
-    print('bebra')
     serve()

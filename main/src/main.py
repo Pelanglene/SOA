@@ -63,8 +63,9 @@ def create_grpc_task(current_user):
     data = request.get_json()
     response = GRPC_TASK_SERVICE_STUB.CreateTask(
         CreateTaskRequest(
-            title=data['title'], 
-            description=data['description']
+            title=data['title'],
+            description=data['description'],
+            deadline=data['deadline']
         )
     )
     return jsonify({
