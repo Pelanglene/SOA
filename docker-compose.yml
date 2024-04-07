@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  db:
+  userdb:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -11,6 +11,18 @@ services:
       POSTGRES_DB: userdb
     ports:
       - "5438:5432"
+  
+  taskdb:
+    image: postgres:13
+    volumes:
+      - taskdb_postgres_data:/var/lib/postgresql/data
+      - ./init-taskdb.sql:/docker-entrypoint-initdb.d/init-taskdb.sql
+    environment:
+      POSTGRES_USER: taskdb_user
+      POSTGRES_PASSWORD: taskdb_password
+      POSTGRES_DB: taskdb
+    ports:
+      - "5439:5432"
 
   main:
     build: ./main/src
@@ -20,9 +32,20 @@ services:
       - FLASK_APP=./main.py
       - FLASK_ENV=development
       - SECRET_KEY=your-secret-key
-      - SQLALCHEMY_DATABASE_URI=postgresql://user:password@db/userdb
+      - SQLALCHEMY_DATABASE_URI=postgresql://user:password@userdb/userdb
+      - GRPC_SERVER_URI=task_service:50051
     depends_on:
-      - db
+      - userdb
+
+  task_service:
+    build: ./task_service/src
+    ports:
+      - "50051:50051"
+    environment:
+      - DATABASE_URI=postgresql://taskdb_user:taskdb_password@taskdb/taskdb
+    depends_on:
+      - taskdb
 
 volumes:
   postgres_data:
+  taskdb_postgres_data:
