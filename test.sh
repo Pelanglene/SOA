@@ -82,7 +82,7 @@ echo ""
 echo "Get task"
 
 # просмотреть задачи с пагинацией
-curl -X GET "http://localhost:5000/tasks?page=1&page_size=10" -H "Authorization: $USER1_TOKEN"
+curl -X GET "http://localhost:5000/tasks?page=2&page_size=3" -H "Authorization: $USER1_TOKEN"
 echo ""
 echo "Get tasks"
 
