@@ -18,3 +18,9 @@ curl -X POST -H "Content-Type: application/json" -d '{"username":"myusername", "
 curl -X POST -H "Content-Type: application/json"      -d '{"username":"myusername", "password":"mypassword"}'      http://localhost:5000/api/users/auth
 
 curl -X PUT      -H "Content-Type: application/json"      -H "Authorization: <token>"      -d '{"name":"New Name", "email":"newemail@example.com"}'      http://localhost:5000/api/users/me
+
+
+Удалить контейнеры и томы:
+
+docker rm -f $(docker ps -a -q) 
+docker volume prune -a
